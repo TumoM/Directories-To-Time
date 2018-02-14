@@ -9,7 +9,6 @@ def get_length_easy(my_file):
 def duration(in_user, j):
     loc_answer_secs = 0
     for root, directories, filenames in os.walk(in_user):
-        [j] = root
         for filename in filenames:
             full_path = os.path.join(root,filename)
             if full_path.endswith(('.mp4')):
@@ -26,7 +25,6 @@ def get_length_harder(my_file):
     answer = 0
     from hachoir.parser import createParser
     from hachoir.metadata import extractMetadata
-    from sys import argv, stderr, exit
 
     filename = my_file
     parser = createParser(filename)
@@ -69,13 +67,20 @@ def string_parser(line_in):
         line_mid += 'c'
     x = time.strptime('{}'.format(line_mid) ,'%H hour %M min %S sec')
     answer = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
-    return answer     
+    return answer  
+
+def str_format(the_string, colon_idx):
+        the_string += 'S'
+        the_string = the_string[:colon_idx[1]] + 'M' + the_string[colon_idx[1]:]
+        the_string = the_string[:colon_idx[0]] + 'H' + the_string[colon_idx[0]:]
+        return the_string   
                         
 if __name__ == "__main__":
     import sys
     import os
     import datetime
     import time
+    import re
     from tinytag import TinyTag
     
     answer_secs = 0
@@ -88,9 +93,15 @@ if __name__ == "__main__":
     for i in range(num_folders):
         directs = user_directs[i]
         seconds = duration(directs,j = i)
-        print("Folder: {} \n- {}".format(user_directs[i], to_string(seconds)))
+        print("Folder: {} \n - {} \n".format(user_directs[i], to_string(seconds)))
         answer_secs += seconds
         
     ANSWER = to_string(answer_secs)
+    colons = []
+    for m in re.finditer(':', ANSWER):
+        colons.append(m.start())    
+
     #clear()
+    ANSWER = str_format(ANSWER, colons)
     print("Total: {}".format(ANSWER))
+    input("\n Press 'Enter' to exit...")
